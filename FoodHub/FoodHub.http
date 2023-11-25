@@ -1,0 +1,6 @@
+@FoodHub_HostAddress = http://localhost:5220
+
+GET {{FoodHub_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
