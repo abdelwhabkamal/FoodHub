@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using FoodHub.Models;
+using FoodHub.Service.Services;
+using FoodHub.Service.Models;
 
 
 namespace FoodHub.Controllers
@@ -12,47 +14,88 @@ namespace FoodHub.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IConfiguration _configuration;
+        private readonly IEmailService _emailService;
 
-        public AuthenticationController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public AuthenticationController(UserManager<IdentityUser> userManager, 
+            RoleManager<IdentityRole> roleManager, IEmailService emailService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
-            _configuration = configuration;
+            _emailService=emailService;
         }
         [HttpPost]
-        public async Task<IActionResult> Register([FromBody]Signup signup,string role)
+        [HttpPost]
+        public async Task<IActionResult> Register([FromBody] Signup signup, string role)
         {
-            var userExist=await _userManager.FindByEmailAsync(signup.Email);
+            // Input validation
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new Response { Status = "Error", Message = "Invalid input data" });
+            }
+
+            // Check if the user already exists
+            var userExist = await _userManager.FindByEmailAsync(signup.Email);
             if (userExist != null)
             {
-                return StatusCode(StatusCodes.Status403Forbidden, new Response { Status = "Error", Message = "User Already exists" });
+                return StatusCode(StatusCodes.Status403Forbidden, new Response { Status = "Error", Message = "User already exists" });
             }
-            //Add New User
-            IdentityUser user = new()
+
+            // Create a new user
+            var user = new IdentityUser
             {
                 Email = signup.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
                 UserName = signup.Username,
-                PhoneNumber= signup.PhoneNumber               
+                PhoneNumber = signup.PhoneNumber
             };
 
+            // Check if the specified role exists
             if (await _roleManager.RoleExistsAsync(role))
             {
+                // Attempt to create the user
                 var result = await _userManager.CreateAsync(user, signup.Password);
-                if (!result.Succeeded)
+
+                if (result.Succeeded)
                 {
-                    return StatusCode(StatusCodes.Status500InternalServerError,
-                        new Response { Status = "Error", Message = "User failed to created" });
+                    // Add the user to the specified role
+                    await _userManager.AddToRoleAsync(user, role);
+
+                    // Generate email confirmation token and send confirmation email
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var confirmationLink = Url.Action(nameof(ConfirmEmail), "Authentication", new { token, email = user.Email }, Request.Scheme);
+                    var message = new Message(new[] { user.Email }, "Confirmation Email Link", confirmationLink);
+                    _emailService.SendEmail(message);
+
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Success", Message = $"User created & email sent to {user.Email} successfully" });
                 }
-                await _userManager.AddToRoleAsync(user,role);
-                return StatusCode(StatusCodes.Status200OK,
-                        new Response { Status = "Success", Message = "Role Added Successfully" });
+                else
+                {
+                    // User creation failed, return a specific status code and error details
+                    return BadRequest(new Response { Status = "Error", Message = "User creation failed"});
+                }
             }
-            else {
-                return StatusCode(StatusCodes.Status501NotImplemented,
-                        new Response { Status = "ERROR", Message = "This Role doesnt exist" });
+            else
+            {
+                return StatusCode(StatusCodes.Status501NotImplemented, new Response { Status = "ERROR", Message = "This role doesn't exist" });
             }
         }
+
+        [HttpGet("ConfirmEmail")]
+        public async Task<IActionResult> ConfirmEmail(string token, string email)
+        {
+            var user=await _userManager.FindByEmailAsync(email);
+            if(user !=null)
+            {
+                var result = await _userManager.ConfirmEmailAsync(user,token);
+                if (result.Succeeded)
+                {
+                    return StatusCode(StatusCodes.Status200OK,
+                        new Response { Status = "Success", Message = "Email Verified Successfully" });
+                }
+            }
+            return StatusCode(StatusCodes.Status501NotImplemented,
+                        new Response { Status = "ERROR", Message = "This User doesnt exist" });
+        }
     }
+    
 }
