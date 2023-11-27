@@ -5,7 +5,7 @@ VisualStudioVersion = 17.8.34316.72
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FoodHub", "FoodHub\FoodHub.csproj", "{E85DA949-F01C-4B71-A517-411EBCF337EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodHub.Service", "FoodHub.Service\FoodHub.Service.csproj", "{680B38FB-1E44-4EAC-B247-CB1DAAF4867C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FoodHub.EmailService", "FoodHub.Service\FoodHub.EmailService.csproj", "{680B38FB-1E44-4EAC-B247-CB1DAAF4867C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -404,9 +404,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.Service.csproj",
-      "projectName": "FoodHub.Service",
-      "projectPath": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.Service.csproj",
+      "projectUniqueName": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.EmailService.csproj",
+      "projectName": "FoodHub.EmailService",
+      "projectPath": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.EmailService.csproj",
       "packagesPath": "C:\\Users\\abdelwahabKamal\\.nuget\\packages\\",
       "outputPath": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\obj\\",
       "projectStyle": "PackageReference",

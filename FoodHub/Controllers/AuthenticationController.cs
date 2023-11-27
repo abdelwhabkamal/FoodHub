@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using FoodHub.Models;
 using FoodHub.Service.Services;
 using FoodHub.Service.Models;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 namespace FoodHub.Controllers
@@ -15,15 +19,15 @@ namespace FoodHub.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmailService _emailService;
-
+        private readonly IConfiguration _configuration;
         public AuthenticationController(UserManager<IdentityUser> userManager, 
-            RoleManager<IdentityRole> roleManager, IEmailService emailService)
+            RoleManager<IdentityRole> roleManager, IEmailService emailService, IConfiguration configuration)
         {
             _userManager = userManager;
             _roleManager = roleManager;
-            _emailService=emailService;
+            _emailService = emailService;
+            _configuration = configuration;
         }
-        [HttpPost]
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] Signup signup, string role)
         {
@@ -95,6 +99,50 @@ namespace FoodHub.Controllers
             }
             return StatusCode(StatusCodes.Status501NotImplemented,
                         new Response { Status = "ERROR", Message = "This User doesnt exist" });
+        }
+        [HttpPost]
+        [Route("login")]
+        public async Task<IActionResult> Login([FromBody] Login login)
+        {
+            // Check the User
+            var user=await _userManager.FindByEmailAsync(login.Email);
+            if(user != null&& await _userManager.CheckPasswordAsync(user,login.Password)) {
+               // ClaimList Creation
+                var authClaims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Email,user.Email),
+                    new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
+                };
+                // Add Roles to List
+                var userRoles = await _userManager.GetRolesAsync(user);
+                foreach (var role in userRoles)
+                {
+                    authClaims.Add(new Claim(ClaimTypes.Role, role));
+                }
+                // Returning The Token
+                var jwtToken=GetToken(authClaims);
+                return Ok(new
+                {
+                    token=new JwtSecurityTokenHandler().WriteToken(jwtToken),
+                    expiration=jwtToken.ValidTo
+                }
+                    );
+
+            }
+            return Unauthorized();
+        }
+        // Generate the Token with Claim
+        private JwtSecurityToken GetToken(List<Claim> claims)
+        {
+            var authsignkey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+            var token = new JwtSecurityToken(
+                issuer: _configuration["JWT:ValidIssuer"],
+                audience: _configuration["JWT:ValidAudience"],
+                expires: DateTime.Now.AddHours(1),
+                claims:claims,
+                signingCredentials:new SigningCredentials(authsignkey,SecurityAlgorithms.HmacSha256)
+                );
+            return token;
         }
     }
     

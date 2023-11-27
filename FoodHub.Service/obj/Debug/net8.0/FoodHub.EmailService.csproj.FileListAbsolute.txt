@@ -1,0 +1,13 @@
+D:\AspProjects\FoodHub\FoodHub.Service\bin\Debug\net8.0\FoodHub.EmailService.deps.json
+D:\AspProjects\FoodHub\FoodHub.Service\bin\Debug\net8.0\FoodHub.EmailService.dll
+D:\AspProjects\FoodHub\FoodHub.Service\bin\Debug\net8.0\FoodHub.EmailService.pdb
+D:\AspProjects\FoodHub\FoodHub.Service\obj\Debug\net8.0\FoodHub.EmailService.csproj.AssemblyReference.cache
+D:\AspProjects\FoodHub\FoodHub.Service\obj\Debug\net8.0\FoodHub.EmailService.GeneratedMSBuildEditorConfig.editorconfig
+D:\AspProjects\FoodHub\FoodHub.Service\obj\Debug\net8.0\FoodHub.EmailService.AssemblyInfoInputs.cache
+D:\AspProjects\FoodHub\FoodHub.Service\obj\Debug\net8.0\FoodHub.EmailService.AssemblyInfo.cs
+D:\AspProjects\FoodHub\FoodHub.Service\obj\Debug\net8.0\FoodHub.EmailService.csproj.CoreCompileInputs.cache
+D:\AspProjects\FoodHub\FoodHub.Service\obj\Debug\net8.0\FoodHub.EmailService.sourcelink.json
+D:\AspProjects\FoodHub\FoodHub.Service\obj\Debug\net8.0\FoodHub.EmailService.dll
+D:\AspProjects\FoodHub\FoodHub.Service\obj\Debug\net8.0\refint\FoodHub.EmailService.dll
+D:\AspProjects\FoodHub\FoodHub.Service\obj\Debug\net8.0\FoodHub.EmailService.pdb
+D:\AspProjects\FoodHub\FoodHub.Service\obj\Debug\net8.0\ref\FoodHub.EmailService.dll

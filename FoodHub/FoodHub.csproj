@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FoodHub.Service\FoodHub.Service.csproj" />
+    <ProjectReference Include="..\FoodHub.Service\FoodHub.EmailService.csproj" />
   </ItemGroup>
 
 </Project>

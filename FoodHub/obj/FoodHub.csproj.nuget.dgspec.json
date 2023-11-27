@@ -4,12 +4,12 @@
     "D:\\AspProjects\\FoodHub\\FoodHub\\FoodHub.csproj": {}
   },
   "projects": {
-    "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.Service.csproj": {
+    "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.EmailService.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.Service.csproj",
-        "projectName": "FoodHub.Service",
-        "projectPath": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.Service.csproj",
+        "projectUniqueName": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.EmailService.csproj",
+        "projectName": "FoodHub.EmailService",
+        "projectPath": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.EmailService.csproj",
         "packagesPath": "C:\\Users\\abdelwahabKamal\\.nuget\\packages\\",
         "outputPath": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\obj\\",
         "projectStyle": "PackageReference",
@@ -99,8 +99,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.Service.csproj": {
-                "projectPath": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.Service.csproj"
+              "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.EmailService.csproj": {
+                "projectPath": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.EmailService.csproj"
               }
             }
           }
