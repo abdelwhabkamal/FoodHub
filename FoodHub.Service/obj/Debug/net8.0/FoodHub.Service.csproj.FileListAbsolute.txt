@@ -11,3 +11,5 @@ D:\AspProjects\FoodHub\FoodHub.Service\obj\Debug\net8.0\FoodHub.Service.dll
 D:\AspProjects\FoodHub\FoodHub.Service\obj\Debug\net8.0\refint\FoodHub.Service.dll
 D:\AspProjects\FoodHub\FoodHub.Service\obj\Debug\net8.0\FoodHub.Service.pdb
 D:\AspProjects\FoodHub\FoodHub.Service\obj\Debug\net8.0\ref\FoodHub.Service.dll
+D:\AspProjects\FoodHub\FoodHub.Service\bin\Debug\net8.0\FoodHub.Service.runtimeconfig.json
+D:\AspProjects\FoodHub\FoodHub.Service\obj\Debug\net8.0\FoodHub.Service.genruntimeconfig.cache

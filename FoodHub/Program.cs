@@ -45,6 +45,7 @@ builder.Services.Configure<IdentityOptions>(
 var emailConfig = config.GetSection("EmailConfiguration").Get<EmailConfiguration>();
 builder.Services.AddSingleton(emailConfig);
 
+builder.Services.AddScoped<IUserManagement, UserManagement>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Add services to the container.

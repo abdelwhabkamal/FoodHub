@@ -10,6 +10,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using System.ComponentModel.DataAnnotations;
+using FoodHub.Service.Models.Authentication.Login;
+using FoodHub.Service.Models.Authentication.Signup;
 
 
 namespace FoodHub.Controllers
@@ -23,70 +25,35 @@ namespace FoodHub.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
+        private readonly IUserManagement _user;
         public AuthenticationController(UserManager<IdentityUser> userManager,
-            RoleManager<IdentityRole> roleManager, IEmailService emailService, IConfiguration configuration, SignInManager<IdentityUser> signInManager)
+            RoleManager<IdentityRole> roleManager, IEmailService emailService, IConfiguration configuration, SignInManager<IdentityUser> signInManager, IUserManagement user)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _emailService = emailService;
             _configuration = configuration;
             _signInManager = signInManager;
+            _user = user;
         }
         [HttpPost]
-        public async Task<IActionResult> Register([FromBody] Signup signup, string role)
+        [Route("register")]
+        public async Task<IActionResult> Register([FromBody] Signup signup)
         {
-            // Input validation
-            if (!ModelState.IsValid)
+            var tokenResponse = await _user.CreateUserWithTokenAsync(signup);
+            if (tokenResponse.IsSuccessed)
             {
-                return BadRequest(new Response { Status = "Error", Message = "Invalid input data" });
+                await _user.AssignRoleToUserAsync(signup.Roles,tokenResponse.Response.IdentityUser);
+                var confirmationLink = Url.Action(nameof(ConfirmEmail), "Authentication", new { tokenResponse.Response.Token, email = signup.Email }, Request.Scheme);
+                var message = new Message(new[] { signup.Email }, "Confirmation Email Link", confirmationLink);
+                _emailService.SendEmail(message);
+                return StatusCode(StatusCodes.Status200OK,
+                               new Response { Status = "Success", Message = $"We have sent an Link to your Email: {signup.Email}" });
+                
             }
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                               new Response { Status = "Failed", Message = tokenResponse.Message });
 
-            // Check if the user already exists
-            var userExist = await _userManager.FindByEmailAsync(signup.Email);
-            if (userExist != null)
-            {
-                return StatusCode(StatusCodes.Status403Forbidden, new Response { Status = "Error", Message = "User already exists" });
-            }
-
-            // Create a new user
-            var user = new IdentityUser
-            {
-                Email = signup.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = signup.Username,
-                PhoneNumber = signup.PhoneNumber,
-                TwoFactorEnabled = true
-            };
-
-            // Check if the specified role exists
-            if (await _roleManager.RoleExistsAsync(role))
-            {
-                // Attempt to create the user
-                var result = await _userManager.CreateAsync(user, signup.Password);
-
-                if (result.Succeeded)
-                {
-                    // Add the user to the specified role
-                    await _userManager.AddToRoleAsync(user, role);
-
-                    // Generate email confirmation token and send confirmation email
-                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var confirmationLink = Url.Action(nameof(ConfirmEmail), "Authentication", new { token, email = user.Email }, Request.Scheme);
-                    var message = new Message(new[] { user.Email }, "Confirmation Email Link", confirmationLink);
-                    _emailService.SendEmail(message);
-
-                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Success", Message = $"User created & email sent to {user.Email} successfully" });
-                }
-                else
-                {
-                    // User creation failed, return a specific status code and error details
-                    return BadRequest(new Response { Status = "Error", Message = "User creation failed" });
-                }
-            }
-            else
-            {
-                return StatusCode(StatusCodes.Status501NotImplemented, new Response { Status = "ERROR", Message = "This role doesn't exist" });
-            }
         }
 
         [HttpGet("ConfirmEmail")]
@@ -109,43 +76,43 @@ namespace FoodHub.Controllers
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] Login login)
         {
-            // Check the User
-            var user = await _userManager.FindByEmailAsync(login.Email);
-            if (user != null && await _userManager.CheckPasswordAsync(user, login.Password)) {
-                // ClaimList Creation
-                var authClaims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Email,user.Email),
-                    new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
-                };
-                // Add Roles to List
-                var userRoles = await _userManager.GetRolesAsync(user);
-                foreach (var role in userRoles)
-                {
-                    authClaims.Add(new Claim(ClaimTypes.Role, role));
-                }
-                if (user.TwoFactorEnabled)
-                {
-                    await _signInManager.SignOutAsync();
-                    await _signInManager.PasswordSignInAsync(user, login.Password, false, true);
-                    var token = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
-                    var message = new Message(new[] { user.Email }, "OTP Confirmation", token);
-                    _emailService.SendEmail(message);
-                    return StatusCode(StatusCodes.Status200OK,
-                           new Response { Status = "Success", Message = $"We have sent an OTP to yout Email {user.Email}" });
-                }
-                // Returning The Token
-                var jwtToken = GetToken(authClaims);
-                return Ok(new
-                {
-                    token = new JwtSecurityTokenHandler().WriteToken(jwtToken),
-                    expiration = jwtToken.ValidTo
-                }
-                    );
+            var loginOtpResponse = await _user.GetOtpByLoginAsync(login);
 
+            if (loginOtpResponse.Response != null)
+            {
+                var user = loginOtpResponse.Response.User;
+
+                if (user != null)
+                {
+                    if (user.TwoFactorEnabled)
+                    {
+                        // Check if the entered password is correct
+                        if (await _userManager.CheckPasswordAsync(user, login.Password))
+                        {
+                            var token = loginOtpResponse.Response.Token;
+                            var message = new Message(new string[] { user.Email! }, "OTP Confirmation", token);
+                            _emailService.SendEmail(message);
+
+                            return StatusCode(StatusCodes.Status200OK,
+                                new Response { Status = "Success", Message = $"We have sent an OTP to your Email {user.Email}" });
+                        }
+                    }
+                    else
+                    {
+                        // No two-factor authentication, check password directly
+                        if (await _userManager.CheckPasswordAsync(user, login.Password))
+                        {
+                            var serviceResponse = await _user.GetJwtTokenAsync(user);
+                            return Ok(serviceResponse);
+                        }
+                    }
+                }
             }
+
+            // If none of the conditions are met, return Unauthorized
             return Unauthorized();
         }
+
 
         [HttpPost]
         [Route("login-2FA")]
@@ -157,26 +124,12 @@ namespace FoodHub.Controllers
             {
                 if (user != null)
                 {
-                    var authClaims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Email,user.Email),
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    };
-                    var userRoles = await _userManager.GetRolesAsync(user);
-                    foreach (var role in userRoles) {
-                        authClaims.Add(new Claim(ClaimTypes.Role, role));
-                    }
-                    var JwtToken = GetToken(authClaims);
-                    return Ok(new
-                    {
-                        token = new JwtSecurityTokenHandler().WriteToken(JwtToken),
-                        expiration = JwtToken.ValidTo
-                    });
-
+                    var serviceResponse = await _user.GetJwtTokenAsync(user);
+                    return Ok(serviceResponse);
                 }
             }
-            return StatusCode(StatusCodes.Status501NotImplemented,
-                                       new Response { Status = "Error", Message = "Inavlid Code" });
+            return StatusCode(StatusCodes.Status404NotFound,
+                new Response { Status = "Success", Message = $"Invalid Code" });
         }
         [HttpPost]
         [AllowAnonymous]
@@ -234,19 +187,6 @@ namespace FoodHub.Controllers
             }
         }
 
-        // Generate the Token with Claim
-        private JwtSecurityToken GetToken(List<Claim> claims)
-        {
-            var authsignkey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
-            var token = new JwtSecurityToken(
-                issuer: _configuration["JWT:ValidIssuer"],
-                audience: _configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddHours(1),
-                claims:claims,
-                signingCredentials:new SigningCredentials(authsignkey,SecurityAlgorithms.HmacSha256)
-                );
-            return token;
-        }
     }
     
 }

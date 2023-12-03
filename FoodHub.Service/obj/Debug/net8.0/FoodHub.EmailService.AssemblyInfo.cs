@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FoodHub.EmailService")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+677d2ba768d0ffb8e3f965d9e844b143e76b23c6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
 [assembly: System.Reflection.AssemblyProductAttribute("FoodHub.EmailService")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FoodHub.EmailService")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

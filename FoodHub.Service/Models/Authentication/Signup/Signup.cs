@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FoodHub.Models.Authentication
+namespace FoodHub.Service.Models.Authentication.Signup
 {
+    [NotMapped]
     public class Signup
     {
         [Required(ErrorMessage = "Username is required.")]
@@ -17,5 +19,7 @@ namespace FoodHub.Models.Authentication
 
         [Phone(ErrorMessage = "Invalid phone number.")]
         public string PhoneNumber { get; set; }
+        [Required(ErrorMessage = "Role is required.")]
+        public List<string> Roles { get; set; }
     }
 }

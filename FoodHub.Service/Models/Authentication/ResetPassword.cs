@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FoodHub.Models.Authentication
 {
+    [NotMapped]
     public class ResetPassword
     {
         [Required(ErrorMessage = "Email address is required.")]

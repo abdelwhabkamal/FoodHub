@@ -4,12 +4,12 @@
     "D:\\AspProjects\\FoodHub\\FoodHub\\FoodHub.csproj": {}
   },
   "projects": {
-    "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.EmailService.csproj": {
+    "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.Service.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.EmailService.csproj",
-        "projectName": "FoodHub.EmailService",
-        "projectPath": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.EmailService.csproj",
+        "projectUniqueName": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.Service.csproj",
+        "projectName": "FoodHub.Service",
+        "projectPath": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.Service.csproj",
         "packagesPath": "C:\\Users\\abdelwahabKamal\\.nuget\\packages\\",
         "outputPath": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\obj\\",
         "projectStyle": "PackageReference",
@@ -45,6 +45,22 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
             "NETCore.MailKit": {
               "target": "Package",
               "version": "[2.1.0, )"
@@ -99,8 +115,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.EmailService.csproj": {
-                "projectPath": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.EmailService.csproj"
+              "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.Service.csproj": {
+                "projectPath": "D:\\AspProjects\\FoodHub\\FoodHub.Service\\FoodHub.Service.csproj"
               }
             }
           }
